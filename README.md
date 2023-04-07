@@ -10,7 +10,7 @@ More coming up!
 ## Installation
 ```
 git pull https://github.com/strmotors/teslaReport
-cd teslaReport
+cd TeslaReport
 python teslaReport.py
 ```
 
