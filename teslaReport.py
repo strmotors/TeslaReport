@@ -4,19 +4,19 @@ import os
 import hashlib
 
 print()
-print("  ______          __      ____                        __ ")
-print(" /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
-print("  / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
-print(" / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
-print("/_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
-print("                                /_/                      ")
-print("By ST-R Motors")
+print("   ______          __      ____                        __ ")
+print("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
+print("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
+print("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
+print(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
+print("                                 /_/                      ")
+print(" By ST-R Motors")
 print()
 
 try:
     urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "dataValues.csv")
 except:
-    print("[ERROR] Grabbing data values from vehicle failed. Please ensure the SecEth is unlocked and cable is plugged.")
+    print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
     print()
     quit()
 
@@ -87,7 +87,22 @@ def recentAlerts():
                 if os.path.isfile(vin+"_alerts.txt"):
                     os.remove(vin+"_alerts.txt")
                 text_file = open(vin+"_alerts.txt", "a")
-                text_file.write("TeslaReport - Service Alerts")
+                text_file.write("   ______          __      ____                        __ ")
+                text_file.write("\n")
+                text_file.write("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
+                text_file.write("\n")
+                text_file.write("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
+                text_file.write("\n")
+                text_file.write("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
+                text_file.write("\n")
+                text_file.write(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
+                text_file.write("\n")
+                text_file.write("                                 /_/                      ")
+                text_file.write("\n")
+                text_file.write(" By ST-R Motors")
+                text_file.write("\n")
+                text_file.write("Service Alerts")
+                text_file.write("\n")
                 
                 for i in range(alertNumber):
                     i = i+1
@@ -275,11 +290,14 @@ def mainMenu():
         print(" 1 - General Information")
         print(" 2 - Battery State of Health")
         print(" 3 - Service Alerts")
-        if developerMode:
-            print(" 4 - [DEV] Reveal PINs")
-            print(" 5 - [DEV] Reveal Spotify")
-            print(" 6 - [DEV] Reveal Wifi")
         print(" 0 - Exit")
+        if developerMode:
+            print()
+            print(" Developer Options")
+            print()
+            print(" a - [DEV] Reveal PINs")
+            print(" b - [DEV] Reveal Spotify")
+            print(" c - [DEV] Reveal Wifi")
         print()
         selectionString = input("Select a number: ")
         try:
@@ -299,33 +317,6 @@ def mainMenu():
                 print(" SERVICE ALERTS")
                 print()
                 recentAlerts()
-            elif selection == 4:
-                if developerMode:
-                    print()
-                    print(" REVEAL PINS")
-                    print()
-                    revealPins()
-                else:
-                    print()
-                    print("Invalid operation. Please enter a number from list.")
-            elif selection == 5:
-                if developerMode:
-                    print()
-                    print(" REVEAL SPOTIFY")
-                    print()
-                    revealSpotify()
-                else:
-                    print()
-                    print("Invalid operation. Please enter a number from list.")
-            elif selection == 6:
-                if developerMode:
-                    print()
-                    print(" REVEAL WIFI")
-                    print()
-                    revealWifi()
-                else:
-                    print()
-                    print("Invalid operation. Please enter a number from list.")
             elif selection == 0:
                 quit()
             else:
@@ -341,6 +332,33 @@ def mainMenu():
                 else:
                     developerMode = True
                     print(" Developer Mode activated.")
+            elif selectionString == "a":
+                if developerMode:
+                    print()
+                    print(" REVEAL PINS")
+                    print()
+                    revealPins()
+                else:
+                    print()
+                    print("Invalid operation. Please enter a number from list.")
+            elif selectionString == "b":
+                if developerMode:
+                    print()
+                    print(" REVEAL SPOTIFY")
+                    print()
+                    revealSpotify()
+                else:
+                    print()
+                    print("Invalid operation. Please enter a number from list.")
+            elif selectionString == "c":
+                if developerMode:
+                    print()
+                    print(" REVEAL WIFI")
+                    print()
+                    revealWifi()
+                else:
+                    print()
+                    print("Invalid operation. Please enter a number from list.")
             else:
                 print("Invalid operation. Please enter a number from list.")
 mainMenu()
