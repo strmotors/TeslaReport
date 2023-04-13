@@ -3,7 +3,9 @@
 
 ## Functions
 
+- **General Information:** Grab general information about the vehicle.
 - **Battery SoH Percentage:** Compute the state of health of the high-voltage battery.
+- **Service Alerts:** See last (up to) 100 service alerts and save as a text document.
 
 More coming up!
 
