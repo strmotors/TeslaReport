@@ -25,24 +25,56 @@ with open('dataValues.csv', encoding="utf8") as file:
 header = content[:1]
 rows = content[1:]
 
-capacity = 0
+effectiveCapacity = 0
+usableCapacity = 0
+brickMax = 0
+brickMin = 0
 carType = ""
 
 def generalInfo():
     print()
     print("soon.")
 
-def batterySoH(capacity):
+def batterySoH(usableCapacity, effectiveCapacity):
     print()
     for row in rows:
         row = row.split(",")
         if row[0]=="BMS_nominalFullPackEnergyRemaining":
             nominalFullPack = row[1]
             nominalFullPack = float(nominalFullPack[:len(nominalFullPack)-1])
-            sohPercentage = (nominalFullPack/capacity)*100
-            soh = str('%.2f' %sohPercentage)
-            print(" Battery SoH: %"+soh)
+            sohEffective = (nominalFullPack/effectiveCapacity)*100
+            sohUsable = (nominalFullPack/usableCapacity)*100
+            sohE = str('%.2f' %sohEffective)
+            sohU = str('%.2f' %sohUsable)
+            print(" Effective Battery SoH: %"+sohE)
+            print(" Usable Battery SoH: %"+sohU)
     print()
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_brickVoltageMax":
+            brickMax = row[1]
+            brickMax = float(brickMax[:len(brickMax)-1])
+            bMax = str('%.2f' %brickMax)
+            print(" Maximum Brick Voltage: "+bMax+"V")
+        if row[0]=="VAPI_brickVoltageMin":
+            brickMin = row[1]
+            brickMin = float(brickMin[:len(brickMin)-1])
+            bMin = str('%.2f' %brickMin)
+            print(" Minimum Brick Voltage: "+bMin+"V")
+    
+    print()
+    
+    brickDelta = brickMax - brickMin
+    brickError = brickDelta / brickMax
+    
+    bDelta = str('%.2f' %brickDelta)
+    bError = str('%.2f' %brickError)
+    
+    print(" Maximum Potantial Difference: "+bDelta+"V")
+    print(" Maximum Error: %"+bError)
+    
+    print()
+    
     
 def recentAlerts():
     print()
@@ -255,17 +287,23 @@ for row in rows:
         trimName = row[1]
         print(" Vehicle Trim: " + trimName)
         if trimName == "100D\n" or trimName == "P100D\n":
-            capacity = 98.4
+            effectiveCapacity = 102.4
+            usableCapacity = 98.4
         elif trimName == "90D\n" or trimName == "P90D\n":
-            capacity = 81.8
+            effectiveCapacity = 85.8
+            usableCapacity = 81.8
         elif trimName == "85D\n" or trimName == "P85D\n" or trimName == "85\n" or trimName == "P85\n":
-            capacity = 77.5
+            effectiveCapacity = 81.5
+            usableCapacity = 77.5
         elif trimName == "75D\n" or trimName == "75\n":
-            capacity = 72.6
+            effectiveCapacity = 75
+            usableCapacity = 72.6
         elif trimName == "70D\n" or trimName == "70\n":
-            capacity = 65.9
+            effectiveCapacity = 75
+            usableCapacity = 65.9
         elif trimName == "60D\n" or trimName == "60\n":
-            capacity = 62.4
+            effectiveCapacity = 75
+            usableCapacity = 62.4
         else:
             print("Corrupted data!")
             quit()
@@ -311,7 +349,7 @@ def mainMenu():
                 print()
                 print(" BATTERY STATE OF HEALTH")
                 print()
-                batterySoH(capacity)
+                batterySoH(usableCapacity, effectiveCapacity)
             elif selection == 3:
                 print()
                 print(" SERVICE ALERTS")
