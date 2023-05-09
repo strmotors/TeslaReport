@@ -29,11 +29,73 @@ effectiveCapacity = 0
 usableCapacity = 0
 brickMax = 0
 brickMin = 0
+acChargeCount = 0
+dcChargeCount = 0
+kwDischargeCount = 0
 carType = ""
 
 def generalInfo():
     print()
-    print("soon.")
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_chargerType":
+            print(" AC Charger Type: "+row[1])
+        if row[0]=="VAPI_airSuspension":
+            print(" Air Suspension: "+row[1])
+        if row[0]=="VAPI_frontFogLights":
+            print(" Front Fog Lights: "+row[1])
+        if row[0]=="VAPI_rearFogLights":
+            print(" Rear Fog Lights: "+row[1])
+        if row[0]=="VAPI_hasHomelink":
+            print(" Homelink: "+row[1])
+        if row[0]=="VAPI_hasSunroof":
+            print(" Sunroof: "+row[1])
+        if row[0]=="VAPI_hasPowerLiftgate":
+            print(" Power Liftgate: "+row[1])
+        if row[0]=="FEATURE_blindspotWarningEnabled":
+            print(" Blindspot Warning: "+row[1])
+        if row[0]=="VAPI_hasMemorySeats":
+            print(" Memory Seats: "+row[1])
+        if row[0]=="VAPI_hasMemoryMirrors":
+            print(" Memory Mirrors: "+row[1])
+        if row[0]=="SYS_IC_cpuHardware":
+            print(" CPU Hardware: "+row[1])
+        if row[0]=="VAPI_hasSeatHeaters":
+            print(" Front Seat Heater: "+row[1])
+        if row[0]=="VAPI_rearSeatHeaters":
+            print(" Rear Seat Heater: "+row[1])
+        if row[0]=="VAPI_steeringWheelHeater":
+            print(" Steering Wheel Heater: "+row[1])
+        if row[0]=="VAPI_fourWheelDrive":
+            print(" Four Wheel Drive: "+row[1])
+        if row[0]=="VAPI_wheelType":
+            print(" Wheel Type: "+row[1])
+        if row[0]=="FEATURE_parkAssistEnabled":
+            print(" Park Assist: "+row[1])
+        if row[0]=="VAPI_hasFoldingMirrors":
+            print(" Folding Mirrors: "+row[1])
+        if row[0]=="VAPI_noKeylessEntry":
+            if row[1]=="true":
+                print(" Keyless Entry: false")
+                print()
+            else:
+                print(" Keyless Entry: true")
+                print()
+        if row[0]=="VAPI_tpmsType":
+            print(" TPMS Type: "+row[1])
+        if row[0]=="VAPI_autopilot":
+            print(" Autopilot: "+row[1])
+        if row[0]=="CONN_cellIMEI":
+            print(" IMEI Number: "+row[1])
+        if row[0]=="CONN_cellConnected":
+            print(" Cell Connection: "+row[1])
+        if row[0]=="CONN_connectedToInternet":
+            print(" Internet Connection: "+row[1])
+        if row[0]=="CONN_vpnConnected":
+            print(" Tesla Connection: "+row[1])
+        if row[0]=="VAPI_performanceAddOn":
+            print(" Performance AddOn: "+row[1])
+    print()
 
 def batterySoH(usableCapacity, effectiveCapacity):
     print()
@@ -72,6 +134,26 @@ def batterySoH(usableCapacity, effectiveCapacity):
     
     print(" Maximum Potantial Difference: "+bDelta+"V")
     print(" Maximum Error: %"+bError)
+    
+    print()
+    
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_acChargerKwhTotal":
+            acChargeCount = row[1]
+            acChargeCount = float(acChargeCount[:len(acChargeCount)-1])
+            acChargeCount = str('%.2f' %acChargeCount)
+            print(" AC Charge Count: "+acChargeCount+" KWh")
+        if row[0]=="VAPI_dcChargerKwhTotal":
+            dcChargeCount = row[1]
+            dcChargeCount = float(dcChargeCount[:len(dcChargeCount)-1])
+            dcChargeCount = str('%.2f' %dcChargeCount)
+            print(" DC Charge Count: "+dcChargeCount+" KWh")
+        if row[0]=="VAPI_kWhDischargeCounter":
+            kwDischargeCount = row[1]
+            kwDischargeCount = float(kwDischargeCount[:len(kwDischargeCount)-1])
+            kwDischargeCount = str('%.2f' %kwDischargeCount)
+            print(" KWh Discharge Count: "+kwDischargeCount+" KWh")
     
     print()
     
