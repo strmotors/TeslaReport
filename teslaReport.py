@@ -2,6 +2,11 @@ import urllib.request
 import csv
 import os
 import hashlib
+from docx import Document
+import shutil
+from datetime import date
+from docx.shared import RGBColor
+
 
 print()
 print("   ______          __      ____                        __ ")
@@ -14,6 +19,7 @@ print(" By ST-R Motors")
 print()
 
 try:
+    #print("Testmode Enabled.")
     urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "dataValues.csv")
 except:
     print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
@@ -34,68 +40,113 @@ dcChargeCount = 0
 kwDischargeCount = 0
 carType = ""
 
+
+
+def writeToReport(reportVar, replaceVar):
+
+    document = Document("report.docx")
+
+    for table in document.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    if reportVar in paragraph.text:
+                        inline = paragraph.runs
+                        paragraph.text = paragraph.text.replace(reportVar, replaceVar.strip())
+    
+    document.save("report.docx")
+
 def generalInfo():
     print()
     for row in rows:
         row = row.split(",")
         if row[0]=="VAPI_chargerType":
             print(" AC Charger Type: "+row[1])
+            writeToReport("$actype",row[1])
         if row[0]=="VAPI_airSuspension":
             print(" Air Suspension: "+row[1])
+            writeToReport("$suspension",row[1])
         if row[0]=="VAPI_frontFogLights":
             print(" Front Fog Lights: "+row[1])
+            writeToReport("$frontfogs",row[1])
         if row[0]=="VAPI_rearFogLights":
             print(" Rear Fog Lights: "+row[1])
+            writeToReport("$rearfogs",row[1])
         if row[0]=="VAPI_hasHomelink":
             print(" Homelink: "+row[1])
+            writeToReport("$homelink",row[1])
         if row[0]=="VAPI_hasSunroof":
             print(" Sunroof: "+row[1])
+            writeToReport("$sunroof",row[1])
         if row[0]=="VAPI_hasPowerLiftgate":
             print(" Power Liftgate: "+row[1])
+            writeToReport("$powerliftgate",row[1])
         if row[0]=="FEATURE_blindspotWarningEnabled":
-            print(" Blindspot Warning: "+row[1])
+            writeToReport("$blindspot",row[1])
         if row[0]=="VAPI_hasMemorySeats":
             print(" Memory Seats: "+row[1])
+            writeToReport("$memoryseats",row[1])
         if row[0]=="VAPI_hasMemoryMirrors":
             print(" Memory Mirrors: "+row[1])
+            writeToReport("$memorymirrors",row[1])
         if row[0]=="SYS_IC_cpuHardware":
             print(" CPU Hardware: "+row[1])
+            writeToReport("$cpuhw",row[1])
         if row[0]=="VAPI_hasSeatHeaters":
             print(" Front Seat Heater: "+row[1])
+            writeToReport("$frontseatheat",row[1])
         if row[0]=="VAPI_rearSeatHeaters":
             print(" Rear Seat Heater: "+row[1])
+            writeToReport("$rearseatheat",row[1])
         if row[0]=="VAPI_steeringWheelHeater":
             print(" Steering Wheel Heater: "+row[1])
+            writeToReport("$steeringheat",row[1])
         if row[0]=="VAPI_fourWheelDrive":
             print(" Four Wheel Drive: "+row[1])
+            writeToReport("$isawd",row[1])
         if row[0]=="VAPI_wheelType":
             print(" Wheel Type: "+row[1])
+            writeToReport("$wheeltype",row[1])
         if row[0]=="FEATURE_parkAssistEnabled":
             print(" Park Assist: "+row[1])
+            writeToReport("$parkassist",row[1])
         if row[0]=="VAPI_hasFoldingMirrors":
             print(" Folding Mirrors: "+row[1])
+            writeToReport("$foldingmirrors",row[1])
         if row[0]=="VAPI_noKeylessEntry":
             if row[1]=="true":
                 print(" Keyless Entry: false")
+                writeToReport("$keylessentry","false")
                 print()
             else:
                 print(" Keyless Entry: true")
+                writeToReport("$keylessentry","true")
                 print()
         if row[0]=="VAPI_tpmsType":
             print(" TPMS Type: "+row[1])
+            writeToReport("$tpmstype",row[1])
         if row[0]=="VAPI_autopilot":
             print(" Autopilot: "+row[1])
+            writeToReport("$autopilot",row[1])
         if row[0]=="CONN_cellIMEI":
             print(" IMEI Number: "+row[1])
+            writeToReport("$imeinumber",row[1])
         if row[0]=="CONN_cellConnected":
             print(" Cell Connection: "+row[1])
         if row[0]=="CONN_connectedToInternet":
             print(" Internet Connection: "+row[1])
+            writeToReport("$internetconnection",row[1])
         if row[0]=="CONN_vpnConnected":
             print(" Tesla Connection: "+row[1])
+            writeToReport("$teslaconnection",row[1])
         if row[0]=="VAPI_performanceAddOn":
             print(" Performance AddOn: "+row[1])
+            writeToReport("$performanceaddon",row[1])
     print()
+    writeToReport("true","Mevcut")
+    writeToReport("false","Mevcut Değil")
+    writeToReport("--","")
+    writeToReport("None","Mevcut Değil")
 
 def batterySoH(usableCapacity, effectiveCapacity):
     print()
@@ -109,7 +160,9 @@ def batterySoH(usableCapacity, effectiveCapacity):
             sohE = str('%.2f' %sohEffective)
             sohU = str('%.2f' %sohUsable)
             print(" Effective Battery SoH: %"+sohE)
+            writeToReport("$effectivesoh","%"+sohE)
             print(" Usable Battery SoH: %"+sohU)
+            writeToReport("$usablesoh","%"+sohU)
     print()
     for row in rows:
         row = row.split(",")
@@ -118,11 +171,13 @@ def batterySoH(usableCapacity, effectiveCapacity):
             brickMax = float(brickMax[:len(brickMax)-1])
             bMax = str('%.2f' %brickMax)
             print(" Maximum Brick Voltage: "+bMax+"V")
+            writeToReport("$maxbrick",bMax+"V")
         if row[0]=="VAPI_brickVoltageMin":
             brickMin = row[1]
             brickMin = float(brickMin[:len(brickMin)-1])
             bMin = str('%.2f' %brickMin)
             print(" Minimum Brick Voltage: "+bMin+"V")
+            writeToReport("$minbrick",bMin+"V")
     
     print()
     
@@ -133,7 +188,9 @@ def batterySoH(usableCapacity, effectiveCapacity):
     bError = str('%.2f' %brickError)
     
     print(" Maximum Potantial Difference: "+bDelta+"V")
+    writeToReport("$maxpotdiff",bDelta+"V")
     print(" Maximum Error: %"+bError)
+    writeToReport("$maxerror","%"+bError)
     
     print()
     
@@ -144,16 +201,19 @@ def batterySoH(usableCapacity, effectiveCapacity):
             acChargeCount = float(acChargeCount[:len(acChargeCount)-1])
             acChargeCount = str('%.2f' %acChargeCount)
             print(" AC Charge Count: "+acChargeCount+" KWh")
+            writeToReport("$ACchargecount",acChargeCount+" KWh")
         if row[0]=="VAPI_dcChargerKwhTotal":
             dcChargeCount = row[1]
             dcChargeCount = float(dcChargeCount[:len(dcChargeCount)-1])
             dcChargeCount = str('%.2f' %dcChargeCount)
             print(" DC Charge Count: "+dcChargeCount+" KWh")
+            writeToReport("$DCchargecount",dcChargeCount+" KWh")
         if row[0]=="VAPI_kWhDischargeCounter":
             kwDischargeCount = row[1]
             kwDischargeCount = float(kwDischargeCount[:len(kwDischargeCount)-1])
             kwDischargeCount = str('%.2f' %kwDischargeCount)
             print(" KWh Discharge Count: "+kwDischargeCount+" KWh")
+            writeToReport("$dischargecount",kwDischargeCount+" KWh")
     
     print()
     
@@ -201,22 +261,22 @@ def recentAlerts():
                 if os.path.isfile(vin+"_alerts.txt"):
                     os.remove(vin+"_alerts.txt")
                 text_file = open(vin+"_alerts.txt", "a")
-                text_file.write("   ______          __      ____                        __ ")
-                text_file.write("\n")
-                text_file.write("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
-                text_file.write("\n")
-                text_file.write("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
-                text_file.write("\n")
-                text_file.write("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
-                text_file.write("\n")
-                text_file.write(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
-                text_file.write("\n")
-                text_file.write("                                 /_/                      ")
-                text_file.write("\n")
-                text_file.write(" By ST-R Motors")
-                text_file.write("\n")
-                text_file.write("Service Alerts")
-                text_file.write("\n")
+                #text_file.write("   ______          __      ____                        __ ")
+                #text_file.write("\n")
+                #text_file.write("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
+                #text_file.write("\n")
+                #text_file.write("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
+                #text_file.write("\n")
+                #text_file.write("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
+                #text_file.write("\n")
+                #text_file.write(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
+                #text_file.write("\n")
+                #text_file.write("                                 /_/                      ")
+                #text_file.write("\n")
+                #text_file.write(" By ST-R Motors")
+                #text_file.write("\n")
+                #text_file.write("Service Alerts")
+                #text_file.write("\n")
                 
                 for i in range(alertNumber):
                     i = i+1
@@ -237,32 +297,32 @@ def recentAlerts():
                         print()
                         alertLogs.append("\n")
                         print("[Alert "+str(i)+"]")
-                        alertLogs.append("[Alert "+str(i)+"]")
+                        alertLogs.append("[Arıza "+str(i)+"]")
                         alertLogs.append("\n")
                         print()
                         alertLogs.append("\n")
                         print(" Alert Code: " + alertCode)
-                        alertLogs.append(" Alert Code: " + alertCode)
+                        alertLogs.append(" Arıza Kodu: " + alertCode)
                         alertLogs.append("\n")
                         print(" Alert Description: " + alertDesc)
-                        alertLogs.append(" Alert Description: " + alertDesc)
+                        alertLogs.append(" Arıza Açıklaması: " + alertDesc)
                         alertLogs.append("\n")
                         print(" Alert Date: " + alertTime[0])
-                        alertLogs.append(" Alert Date: " + alertTime[0])
+                        alertLogs.append(" Arıza Tarihi: " + alertTime[0])
                         alertLogs.append("\n")
                         print(" Alert Time: " + alertTime[1])
-                        alertLogs.append(" Alert Time: " + alertTime[1])
+                        alertLogs.append(" Arıza Saati: " + alertTime[1])
                         alertLogs.append("\n")
                         if alertEnd != "":
                             print(" Alert End Date: " + alertEnd[0])
-                            alertLogs.append(" Alert Date: " + alertTime[0])
+                            alertLogs.append(" Arıza Tarihi: " + alertTime[0])
                             alertLogs.append("\n")
                             print(" Alert End Time: " + alertEnd[1])
-                            alertLogs.append(" Alert Time: " + alertTime[1])
+                            alertLogs.append(" Arıza Saati: " + alertTime[1])
                             alertLogs.append("\n")
                         else:
                             print(" [!] Alert is active!")
-                            alertLogs.append(" [!] Alert is active!")
+                            #alertLogs.append(" [!] Arıza Aktif!")
                             alertLogs.append("\n")
                         
                         for alert in alertLogs:
@@ -272,19 +332,19 @@ def recentAlerts():
                             print()
                             alertLogs.append("\n")
                             print(" Alert Code: " + alertCode)
-                            alertLogs.append(" Alert Code: " + alertCode)
+                            alertLogs.append(" Arıza Kodu: " + alertCode)
                             alertLogs.append("\n")
                             print(" Alert Description: " + alertDesc)
-                            alertLogs.append(" Alert Description: " + alertDesc)
+                            alertLogs.append(" Arıza Açıklaması: " + alertDesc)
                             alertLogs.append("\n")
                             print(" Alert Date: " + alertTime[0])
-                            alertLogs.append(" Alert Date: " + alertTime[0])
+                            alertLogs.append(" Arıza Tarihi: " + alertTime[0])
                             alertLogs.append("\n")
                             print(" Alert Time: " + alertTime[1])
-                            alertLogs.append(" Alert Time: " + alertTime[1])
+                            alertLogs.append(" Arıza Saati: " + alertTime[1])
                             alertLogs.append("\n")
                             print(" [!] Alert is active!")
-                            alertLogs.append(" [!] Alert is active!")
+                            #alertLogs.append(" [!] Arıza Aktif!")
                             alertLogs.append("\n")
                             for alert in alertLogs:
                                            text_file.write(alert)
@@ -292,6 +352,9 @@ def recentAlerts():
                 print()
                 print(" Output file saved as "+vin+"_alerts.txt")
                 text_file.close()
+                with open(vin+"_alerts.txt", 'r') as f:
+                    writeToReport("$activeservicealerts",f.read())
+                
     print()
 
 def revealPins():
@@ -357,17 +420,22 @@ def revealWifi():
                 print("Password: "+spass)
                 print()
 
+shutil.copy('basereport', 'report.docx')
+writeToReport("$datetime",str(date.today()))
+
 for row in rows:
     row = row.split(",")
     if row[0]=="VAPI_carType":
         carType = row[1]
         print(" Vehicle Model: " + carType)
+        writeToReport("$vehmodel",carType)
 
 for row in rows:
     row = row.split(",")
     if row[0]=="VAPI_trim":
         trimName = row[1]
         print(" Vehicle Trim: " + trimName)
+        writeToReport("$vehtrim",trimName)
         if trimName == "100D\n" or trimName == "P100D\n":
             effectiveCapacity = 102.4
             usableCapacity = 98.4
@@ -481,4 +549,5 @@ def mainMenu():
                     print("Invalid operation. Please enter a number from list.")
             else:
                 print("Invalid operation. Please enter a number from list.")
+
 mainMenu()
