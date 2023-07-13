@@ -19,7 +19,7 @@ print(" By ST-R Motors")
 print()
 
 try:
-    #print("Testmode Enabled.")
+    #print(" Testmode Enabled.")
     urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "dataValues.csv")
 except:
     print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
@@ -302,23 +302,23 @@ def recentAlerts():
                         print()
                         alertLogs.append("\n")
                         print(" Alert Code: " + alertCode)
-                        alertLogs.append(" Arıza Kodu: " + alertCode)
+                        alertLogs.append("Arıza Kodu: " + alertCode)
                         alertLogs.append("\n")
                         print(" Alert Description: " + alertDesc)
-                        alertLogs.append(" Arıza Açıklaması: " + alertDesc)
+                        alertLogs.append("Arıza Açıklaması: " + alertDesc)
                         alertLogs.append("\n")
                         print(" Alert Date: " + alertTime[0])
-                        alertLogs.append(" Arıza Tarihi: " + alertTime[0])
+                        alertLogs.append("Arıza Tarihi: " + alertTime[0])
                         alertLogs.append("\n")
                         print(" Alert Time: " + alertTime[1])
-                        alertLogs.append(" Arıza Saati: " + alertTime[1])
+                        alertLogs.append("Arıza Saati: " + alertTime[1])
                         alertLogs.append("\n")
                         if alertEnd != "":
                             print(" Alert End Date: " + alertEnd[0])
-                            alertLogs.append(" Arıza Tarihi: " + alertTime[0])
+                            alertLogs.append("Arıza Tarihi: " + alertTime[0])
                             alertLogs.append("\n")
                             print(" Alert End Time: " + alertEnd[1])
-                            alertLogs.append(" Arıza Saati: " + alertTime[1])
+                            alertLogs.append("Arıza Saati: " + alertTime[1])
                             alertLogs.append("\n")
                         else:
                             print(" [!] Alert is active!")
@@ -332,16 +332,16 @@ def recentAlerts():
                             print()
                             alertLogs.append("\n")
                             print(" Alert Code: " + alertCode)
-                            alertLogs.append(" Arıza Kodu: " + alertCode)
+                            alertLogs.append("Arıza Kodu: " + alertCode)
                             alertLogs.append("\n")
                             print(" Alert Description: " + alertDesc)
-                            alertLogs.append(" Arıza Açıklaması: " + alertDesc)
+                            alertLogs.append("Arıza Açıklaması: " + alertDesc)
                             alertLogs.append("\n")
                             print(" Alert Date: " + alertTime[0])
-                            alertLogs.append(" Arıza Tarihi: " + alertTime[0])
+                            alertLogs.append("Arıza Tarihi: " + alertTime[0])
                             alertLogs.append("\n")
                             print(" Alert Time: " + alertTime[1])
-                            alertLogs.append(" Arıza Saati: " + alertTime[1])
+                            alertLogs.append("Arıza Saati: " + alertTime[1])
                             alertLogs.append("\n")
                             print(" [!] Alert is active!")
                             #alertLogs.append(" [!] Arıza Aktif!")
@@ -429,6 +429,13 @@ for row in rows:
         carType = row[1]
         print(" Vehicle Model: " + carType)
         writeToReport("$vehmodel",carType)
+
+for row in rows:
+    row = row.split(",")
+    if row[0]=="GUI_odometer":
+        odometer = row[1]
+        print(" Odometer: " + odometer)
+        writeToReport("$odometer",odometer.split(".")[0])
 
 for row in rows:
     row = row.split(",")
