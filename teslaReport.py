@@ -2,9 +2,11 @@ import urllib.request
 import csv
 import os
 import hashlib
+import json
 from docx import Document
 import shutil
 from datetime import date
+from datetime import datetime
 from docx.shared import RGBColor
 
 
@@ -21,6 +23,7 @@ print()
 try:
     #print(" Testmode Enabled.")
     urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "dataValues.csv")
+    urllib.request.urlretrieve("http://192.168.90.100:7654/diag_vitals?format=json", "diagVitals.json")
 except:
     print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
     print()
@@ -30,6 +33,9 @@ with open('dataValues.csv', encoding="utf8") as file:
     content = file.readlines()
 header = content[:1]
 rows = content[1:]
+
+jsonFile = open('diagVitals.json')
+diagVitals = json.load(jsonFile)
 
 effectiveCapacity = 0
 usableCapacity = 0
@@ -433,9 +439,9 @@ for row in rows:
 for row in rows:
     row = row.split(",")
     if row[0]=="GUI_odometer":
-        odometer = row[1]
-        print(" Odometer: " + odometer)
-        writeToReport("$odometer",odometer.split(".")[0])
+        odometer = str(float(row[1])*1.609344)
+        print(" Odometer: " + odometer.split(".")[0] + " Km")
+        writeToReport("$odometer",odometer.split(".")[0]+" Km")
 
 for row in rows:
     row = row.split(",")
@@ -465,18 +471,12 @@ for row in rows:
             print("Corrupted data!")
             quit()
 
-vin = ""
-
-for row in rows:
-    row = row.split(",")
-    if row[0]=="GUI_remoteFileHashes":
-        try:
-            vinArray = row[17]
-            vinArray = vinArray.split("/")
-            vin = vinArray[1]
-            print(" VIN Number: " + vin)
-        except:
-            vin = "UNKNOWNVIN"
+vin = diagVitals['vin']
+print(" VIN Number: " + vin)
+bday = datetime.fromtimestamp(int(diagVitals['bdayUTC']))
+print(" Birthday: "+str(bday))
+writeToReport("$vin",vin)
+writeToReport("$bday",str(bday))
 
 def mainMenu():
     developerMode = False
