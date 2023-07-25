@@ -44,9 +44,14 @@ brickMin = 0
 acChargeCount = 0
 dcChargeCount = 0
 kwDischargeCount = 0
+odometer= 0
 carType = ""
 
-
+def add_years(start_date, years):
+    try:
+        return start_date.replace(year=start_date.year + years)
+    except ValueError:
+        return start_date.replace(year=start_date.year + years, day=28)
 
 def writeToReport(reportVar, replaceVar):
 
@@ -471,12 +476,56 @@ for row in rows:
             print("Corrupted data!")
             quit()
 
+
+
 vin = diagVitals['vin']
 print(" VIN Number: " + vin)
-bday = datetime.fromtimestamp(int(diagVitals['bdayUTC']))
+bdayUTC = int(diagVitals['bdayUTC'])
+bday = datetime.fromtimestamp(bdayUTC)
+bdayStr = bday.strftime('%Y-%m-%d')
 print(" Birthday: "+str(bday))
 writeToReport("$vin",vin)
 writeToReport("$bday",str(bday))
+
+generalWarrYear = add_years(bday,4)
+generalWarrKm = 50000*1.609344
+
+safetyWarrYear = add_years(bday,5)
+safetyWarrKm = 60000*1.609344
+
+batteryWarrYear = add_years(bday,8)
+batteryWarrKm = 150000*1.609344
+
+if datetime.now()<generalWarrYear and int(float(odometer))<int(float(generalWarrKm)):
+    writeToReport("$generalwarranty","Mevcut")
+    writeToReport("$generalexpiry",str(generalWarrYear) + " " + str(int(float(generalWarrKm))) + " Km")
+    print()
+    print(" General Warranty: True")
+else:
+    writeToReport("$generalwarranty","Mevcut Değil")
+    writeToReport("$generalexpiry",str(generalWarrYear) + " " + str(int(float(generalWarrKm))) + " Km")
+    print()
+    print(" General Warranty: False")
+
+if datetime.now()<safetyWarrYear and int(float(odometer))<int(float(safetyWarrKm)):
+    writeToReport("$safetywarranty","Mevcut")
+    writeToReport("$safetyexpiry",str(safetyWarrYear) + " " + str(int(float(safetyWarrKm))) + " Km")
+    print(" Safety Warranty: True")
+else:
+    writeToReport("$safetywarranty","Mevcut Değil")
+    writeToReport("$safetyexpiry",str(safetyWarrYear) + " " + str(int(float(safetyWarrKm))) + " Km")
+    print(" Safety Warranty: False")
+
+if datetime.now()<batteryWarrYear and int(float(odometer))<int(float(batteryWarrKm)):
+    writeToReport("$batterywarranty","Mevcut")
+    writeToReport("$batteryexpiry",str(batteryWarrYear) + " " + str(int(float(batteryWarrKm))) + " Km")
+    print(" Battery Warranty: True")
+    print()
+else:
+    writeToReport("$batterywarranty","Mevcut Değil")
+    writeToReport("$batteryexpiry",str(batteryWarrYear) + " " + str(int(float(batteryWarrKm))) + " Km")
+    print(" Battery Warranty: False")
+    print()
 
 def mainMenu():
     developerMode = False
