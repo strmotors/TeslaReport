@@ -21,21 +21,26 @@ print(" By ST-R Motors")
 print()
 
 try:
-    #print(" Testmode Enabled.")
-    urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "dataValues.csv")
-    urllib.request.urlretrieve("http://192.168.90.100:7654/diag_vitals?format=json", "diagVitals.json")
+    print(" Testmode Enabled.")
+    #urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "data_values")
+    #urllib.request.urlretrieve("http://192.168.90.100:7654/diag_vitals?format=json", "diag_vitals")
 except:
     print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
     print()
     quit()
 
-with open('dataValues.csv', encoding="utf8") as file:
+with open('data_values', encoding="utf8") as file:
     content = file.readlines()
 header = content[:1]
 rows = content[1:]
 
-jsonFile = open('diagVitals.json')
+jsonFile = open('diag_vitals')
 diagVitals = json.load(jsonFile)
+
+if os.path.isfile("alerts_cache"):
+    os.remove("alerts_cache")
+if os.path.isfile("report_cache"):
+    os.remove("report_cache")
 
 effectiveCapacity = 0
 usableCapacity = 0
@@ -55,7 +60,7 @@ def add_years(start_date, years):
 
 def writeToReport(reportVar, replaceVar):
 
-    document = Document("report.docx")
+    document = Document("report_cache")
 
     for table in document.tables:
         for row in table.rows:
@@ -65,7 +70,7 @@ def writeToReport(reportVar, replaceVar):
                         inline = paragraph.runs
                         paragraph.text = paragraph.text.replace(reportVar, replaceVar.strip())
     
-    document.save("report.docx")
+    document.save("report_cache")
 
 def generalInfo():
     print()
@@ -73,91 +78,62 @@ def generalInfo():
         row = row.split(",")
         if row[0]=="VAPI_chargerType":
             print(" AC Charger Type: "+row[1])
-            writeToReport("$actype",row[1])
         if row[0]=="VAPI_airSuspension":
             print(" Air Suspension: "+row[1])
-            writeToReport("$suspension",row[1])
         if row[0]=="VAPI_frontFogLights":
             print(" Front Fog Lights: "+row[1])
-            writeToReport("$frontfogs",row[1])
         if row[0]=="VAPI_rearFogLights":
             print(" Rear Fog Lights: "+row[1])
-            writeToReport("$rearfogs",row[1])
         if row[0]=="VAPI_hasHomelink":
             print(" Homelink: "+row[1])
-            writeToReport("$homelink",row[1])
         if row[0]=="VAPI_hasSunroof":
             print(" Sunroof: "+row[1])
-            writeToReport("$sunroof",row[1])
         if row[0]=="VAPI_hasPowerLiftgate":
             print(" Power Liftgate: "+row[1])
-            writeToReport("$powerliftgate",row[1])
         if row[0]=="FEATURE_blindspotWarningEnabled":
-            writeToReport("$blindspot",row[1])
+            print(" Blindspot Warning: "+row[1])
         if row[0]=="VAPI_hasMemorySeats":
             print(" Memory Seats: "+row[1])
-            writeToReport("$memoryseats",row[1])
         if row[0]=="VAPI_hasMemoryMirrors":
             print(" Memory Mirrors: "+row[1])
-            writeToReport("$memorymirrors",row[1])
         if row[0]=="SYS_IC_cpuHardware":
             print(" CPU Hardware: "+row[1])
-            writeToReport("$cpuhw",row[1])
         if row[0]=="VAPI_hasSeatHeaters":
             print(" Front Seat Heater: "+row[1])
-            writeToReport("$frontseatheat",row[1])
         if row[0]=="VAPI_rearSeatHeaters":
             print(" Rear Seat Heater: "+row[1])
-            writeToReport("$rearseatheat",row[1])
         if row[0]=="VAPI_steeringWheelHeater":
             print(" Steering Wheel Heater: "+row[1])
-            writeToReport("$steeringheat",row[1])
         if row[0]=="VAPI_fourWheelDrive":
             print(" Four Wheel Drive: "+row[1])
-            writeToReport("$isawd",row[1])
         if row[0]=="VAPI_wheelType":
             print(" Wheel Type: "+row[1])
-            writeToReport("$wheeltype",row[1])
         if row[0]=="FEATURE_parkAssistEnabled":
             print(" Park Assist: "+row[1])
-            writeToReport("$parkassist",row[1])
         if row[0]=="VAPI_hasFoldingMirrors":
             print(" Folding Mirrors: "+row[1])
-            writeToReport("$foldingmirrors",row[1])
         if row[0]=="VAPI_noKeylessEntry":
             if row[1]=="true":
                 print(" Keyless Entry: false")
-                writeToReport("$keylessentry","false")
                 print()
             else:
                 print(" Keyless Entry: true")
-                writeToReport("$keylessentry","true")
                 print()
         if row[0]=="VAPI_tpmsType":
             print(" TPMS Type: "+row[1])
-            writeToReport("$tpmstype",row[1])
         if row[0]=="VAPI_autopilot":
             print(" Autopilot: "+row[1])
-            writeToReport("$autopilot",row[1])
         if row[0]=="CONN_cellIMEI":
             print(" IMEI Number: "+row[1])
-            writeToReport("$imeinumber",row[1])
         if row[0]=="CONN_cellConnected":
             print(" Cell Connection: "+row[1])
         if row[0]=="CONN_connectedToInternet":
             print(" Internet Connection: "+row[1])
-            writeToReport("$internetconnection",row[1])
         if row[0]=="CONN_vpnConnected":
             print(" Tesla Connection: "+row[1])
-            writeToReport("$teslaconnection",row[1])
         if row[0]=="VAPI_performanceAddOn":
             print(" Performance AddOn: "+row[1])
-            writeToReport("$performanceaddon",row[1])
     print()
-    writeToReport("true","Mevcut")
-    writeToReport("false","Mevcut Değil")
-    writeToReport("--","")
-    writeToReport("None","Mevcut Değil")
 
 def batterySoH(usableCapacity, effectiveCapacity):
     print()
@@ -171,9 +147,7 @@ def batterySoH(usableCapacity, effectiveCapacity):
             sohE = str('%.2f' %sohEffective)
             sohU = str('%.2f' %sohUsable)
             print(" Effective Battery SoH: %"+sohE)
-            writeToReport("$effectivesoh","%"+sohE)
             print(" Usable Battery SoH: %"+sohU)
-            writeToReport("$usablesoh","%"+sohU)
     print()
     for row in rows:
         row = row.split(",")
@@ -182,13 +156,11 @@ def batterySoH(usableCapacity, effectiveCapacity):
             brickMax = float(brickMax[:len(brickMax)-1])
             bMax = str('%.2f' %brickMax)
             print(" Maximum Brick Voltage: "+bMax+"V")
-            writeToReport("$maxbrick",bMax+"V")
         if row[0]=="VAPI_brickVoltageMin":
             brickMin = row[1]
             brickMin = float(brickMin[:len(brickMin)-1])
             bMin = str('%.2f' %brickMin)
             print(" Minimum Brick Voltage: "+bMin+"V")
-            writeToReport("$minbrick",bMin+"V")
     
     print()
     
@@ -199,9 +171,7 @@ def batterySoH(usableCapacity, effectiveCapacity):
     bError = str('%.2f' %brickError)
     
     print(" Maximum Potantial Difference: "+bDelta+"V")
-    writeToReport("$maxpotdiff",bDelta+"V")
     print(" Maximum Error: %"+bError)
-    writeToReport("$maxerror","%"+bError)
     
     print()
     
@@ -212,19 +182,16 @@ def batterySoH(usableCapacity, effectiveCapacity):
             acChargeCount = float(acChargeCount[:len(acChargeCount)-1])
             acChargeCount = str('%.2f' %acChargeCount)
             print(" AC Charge Count: "+acChargeCount+" KWh")
-            writeToReport("$ACchargecount",acChargeCount+" KWh")
         if row[0]=="VAPI_dcChargerKwhTotal":
             dcChargeCount = row[1]
             dcChargeCount = float(dcChargeCount[:len(dcChargeCount)-1])
             dcChargeCount = str('%.2f' %dcChargeCount)
             print(" DC Charge Count: "+dcChargeCount+" KWh")
-            writeToReport("$DCchargecount",dcChargeCount+" KWh")
         if row[0]=="VAPI_kWhDischargeCounter":
             kwDischargeCount = row[1]
             kwDischargeCount = float(kwDischargeCount[:len(kwDischargeCount)-1])
             kwDischargeCount = str('%.2f' %kwDischargeCount)
             print(" KWh Discharge Count: "+kwDischargeCount+" KWh")
-            writeToReport("$dischargecount",kwDischargeCount+" KWh")
     
     print()
     
@@ -272,22 +239,22 @@ def recentAlerts():
                 if os.path.isfile(vin+"_alerts.txt"):
                     os.remove(vin+"_alerts.txt")
                 text_file = open(vin+"_alerts.txt", "a")
-                #text_file.write("   ______          __      ____                        __ ")
-                #text_file.write("\n")
-                #text_file.write("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
-                #text_file.write("\n")
-                #text_file.write("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
-                #text_file.write("\n")
-                #text_file.write("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
-                #text_file.write("\n")
-                #text_file.write(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
-                #text_file.write("\n")
-                #text_file.write("                                 /_/                      ")
-                #text_file.write("\n")
-                #text_file.write(" By ST-R Motors")
-                #text_file.write("\n")
-                #text_file.write("Service Alerts")
-                #text_file.write("\n")
+                text_file.write("   ______          __      ____                        __ ")
+                text_file.write("\n")
+                text_file.write("  /_  __/__  _____/ /___ _/ __ \___  ____  ____  _____/ /_")
+                text_file.write("\n")
+                text_file.write("   / / / _ \/ ___/ / __ `/ /_/ / _ \/ __ \/ __ \/ ___/ __/")
+                text_file.write("\n")
+                text_file.write("  / / /  __(__  ) / /_/ / _, _/  __/ /_/ / /_/ / /  / /_  ")
+                text_file.write("\n")
+                text_file.write(" /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/  ")
+                text_file.write("\n")
+                text_file.write("                                 /_/                      ")
+                text_file.write("\n")
+                text_file.write(" By ST-R Motors")
+                text_file.write("\n")
+                text_file.write("Service Alerts")
+                text_file.write("\n")
                 
                 for i in range(alertNumber):
                     i = i+1
@@ -363,10 +330,194 @@ def recentAlerts():
                 print()
                 print(" Output file saved as "+vin+"_alerts.txt")
                 text_file.close()
-                with open(vin+"_alerts.txt", 'r') as f:
+    print()
+
+def exportReport(usableCapacity, effectiveCapacity):
+
+    #GENERAL INFO
+    
+    print(" (1/3) Collecting General Information...")
+    
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_chargerType":
+            writeToReport("$actype",row[1])
+        if row[0]=="VAPI_airSuspension":
+            writeToReport("$suspension",row[1])
+        if row[0]=="VAPI_frontFogLights":
+            writeToReport("$frontfogs",row[1])
+        if row[0]=="VAPI_rearFogLights":
+            writeToReport("$rearfogs",row[1])
+        if row[0]=="VAPI_hasHomelink":
+            writeToReport("$homelink",row[1])
+        if row[0]=="VAPI_hasSunroof":
+            writeToReport("$sunroof",row[1])
+        if row[0]=="VAPI_hasPowerLiftgate":
+            writeToReport("$powerliftgate",row[1])
+        if row[0]=="FEATURE_blindspotWarningEnabled":
+            writeToReport("$blindspot",row[1])
+        if row[0]=="VAPI_hasMemorySeats":
+            writeToReport("$memoryseats",row[1])
+        if row[0]=="VAPI_hasMemoryMirrors":
+            writeToReport("$memorymirrors",row[1])
+        if row[0]=="SYS_IC_cpuHardware":
+            writeToReport("$cpuhw",row[1])
+        if row[0]=="VAPI_hasSeatHeaters":
+            writeToReport("$frontseatheat",row[1])
+        if row[0]=="VAPI_rearSeatHeaters":
+            writeToReport("$rearseatheat",row[1])
+        if row[0]=="VAPI_steeringWheelHeater":
+            writeToReport("$steeringheat",row[1])
+        if row[0]=="VAPI_fourWheelDrive":
+            writeToReport("$isawd",row[1])
+        if row[0]=="VAPI_wheelType":
+            writeToReport("$wheeltype",row[1])
+        if row[0]=="FEATURE_parkAssistEnabled":
+            writeToReport("$parkassist",row[1])
+        if row[0]=="VAPI_hasFoldingMirrors":
+            writeToReport("$foldingmirrors",row[1])
+        if row[0]=="VAPI_noKeylessEntry":
+            if row[1]=="true":
+                writeToReport("$keylessentry","false")
+            else:
+                writeToReport("$keylessentry","true")
+        if row[0]=="VAPI_tpmsType":
+            writeToReport("$tpmstype",row[1])
+        if row[0]=="VAPI_autopilot":
+            writeToReport("$autopilot",row[1])
+        if row[0]=="CONN_cellIMEI":
+            writeToReport("$imeinumber",row[1])
+        if row[0]=="CONN_connectedToInternet":
+            writeToReport("$internetconnection",row[1])
+        if row[0]=="CONN_vpnConnected":
+            writeToReport("$teslaconnection",row[1])
+        if row[0]=="VAPI_performanceAddOn":
+            writeToReport("$performanceaddon",row[1])
+    writeToReport("true","Mevcut")
+    writeToReport("false","Mevcut Değil")
+    writeToReport("--","")
+    writeToReport("None","Mevcut Değil")
+    
+    #BATTERY INFO
+    
+    print(" (2/3) Collecting Battery Information...")
+    
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="BMS_nominalFullPackEnergyRemaining":
+            nominalFullPack = row[1]
+            nominalFullPack = float(nominalFullPack[:len(nominalFullPack)-1])
+            sohEffective = (nominalFullPack/effectiveCapacity)*100
+            sohUsable = (nominalFullPack/usableCapacity)*100
+            sohE = str('%.2f' %sohEffective)
+            sohU = str('%.2f' %sohUsable)
+            writeToReport("$effectivesoh","%"+sohE)
+            writeToReport("$usablesoh","%"+sohU)
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_brickVoltageMax":
+            brickMax = row[1]
+            brickMax = float(brickMax[:len(brickMax)-1])
+            bMax = str('%.2f' %brickMax)
+            writeToReport("$maxbrick",bMax+"V")
+        if row[0]=="VAPI_brickVoltageMin":
+            brickMin = row[1]
+            brickMin = float(brickMin[:len(brickMin)-1])
+            bMin = str('%.2f' %brickMin)
+            writeToReport("$minbrick",bMin+"V")
+    
+    brickDelta = brickMax - brickMin
+    brickError = brickDelta / brickMax
+    
+    bDelta = str('%.2f' %brickDelta)
+    bError = str('%.2f' %brickError)
+    
+    writeToReport("$maxpotdiff",bDelta+"V")
+    writeToReport("$maxerror","%"+bError)
+        
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="VAPI_acChargerKwhTotal":
+            acChargeCount = row[1]
+            acChargeCount = float(acChargeCount[:len(acChargeCount)-1])
+            acChargeCount = str('%.2f' %acChargeCount)
+            writeToReport("$ACchargecount",acChargeCount+" KWh")
+        if row[0]=="VAPI_dcChargerKwhTotal":
+            dcChargeCount = row[1]
+            dcChargeCount = float(dcChargeCount[:len(dcChargeCount)-1])
+            dcChargeCount = str('%.2f' %dcChargeCount)
+            writeToReport("$DCchargecount",dcChargeCount+" KWh")
+        if row[0]=="VAPI_kWhDischargeCounter":
+            kwDischargeCount = row[1]
+            kwDischargeCount = float(kwDischargeCount[:len(kwDischargeCount)-1])
+            kwDischargeCount = str('%.2f' %kwDischargeCount)
+            writeToReport("$dischargecount",kwDischargeCount+" KWh")
+    
+    #ALERT INFO
+    
+    print(" (3/3) Collecting Service Alerts...")
+    
+    for row in rows:
+        row = row.split(",")
+        if row[0]=="carserver/recentAlerts":
+            alertNumber = 100
+            activeOnly = True
+
+            try:
+                if os.path.isfile("alerts_cache"):
+                    os.remove("alerts_cache")
+                text_file = open("alerts_cache", "a")
+                
+                for i in range(alertNumber):
+                    i = i+1
+                    alertString = row[i]
+                    alertString = alertString.split("@")
+                    alertCode = alertString[0]
+                    alertTime = alertString[1]
+                    alertDesc = alertString[2]
+                    alertEnd = alertString[3]
+                    
+                    alertTime = alertTime.split("T")
+                    if alertEnd != "":
+                        alertEnd = alertEnd.split("T")
+                    
+                    alertLogs = []
+                    
+                    if alertEnd == "":
+                        alertLogs.append("\n")
+                        alertLogs.append("Arıza Kodu: " + alertCode)
+                        alertLogs.append("\n")
+                        
+                        alertLogs.append("Arıza Açıklaması: " + alertDesc)
+                        alertLogs.append("\n")
+                        
+                        alertLogs.append("Arıza Tarihi: " + alertTime[0])
+                        alertLogs.append("\n")
+                        
+                        alertLogs.append("Arıza Saati: " + alertTime[1])
+                        alertLogs.append("\n")
+                        alertLogs.append("\n")
+                        
+                        for alert in alertLogs:
+                            text_file.write(alert)
+                
+                text_file.close()
+                with open("alerts_cache", 'r') as f:
                     writeToReport("$activeservicealerts",f.read())
                 
+                os.remove("alerts_cache")
+            except:
+                print(" Input/Output error. Try again after cleaning files.")
+    
     print()
+    print(" All information is collected.")
+    
+    saveReportName = str(vin) + "_Report.docx"
+    shutil.copy('report_cache', saveReportName)
+    
+    print()
+    print(" Output report saved as ./" + saveReportName)
+    os.remove('report_cache')
 
 def revealPins():
     print()
@@ -431,7 +582,7 @@ def revealWifi():
                 print("Password: "+spass)
                 print()
 
-shutil.copy('basereport', 'report.docx')
+shutil.copy('basereport', 'report_cache')
 writeToReport("$datetime",str(date.today()))
 
 for row in rows:
@@ -475,8 +626,6 @@ for row in rows:
         else:
             print("Corrupted data!")
             quit()
-
-
 
 vin = diagVitals['vin']
 print(" VIN Number: " + vin)
@@ -531,9 +680,10 @@ def mainMenu():
     developerMode = False
     while True:
         print()
-        print(" 1 - General Information")
-        print(" 2 - Battery State of Health")
-        print(" 3 - Service Alerts")
+        print(" 1 - Export Report")
+        print(" 2 - General Information")
+        print(" 3 - Battery State of Health")
+        print(" 4 - Service Alerts")
         print(" 0 - Exit")
         if developerMode:
             print()
@@ -548,15 +698,20 @@ def mainMenu():
             selection = int(selectionString)
             if selection == 1:
                 print()
+                print(" EXPORTING REPORT...")
+                print()
+                exportReport(usableCapacity, effectiveCapacity)
+            elif selection == 2:
+                print()
                 print(" GENERAL INFORMATION")
                 print()
                 generalInfo()
-            elif selection == 2:
+            elif selection == 3:
                 print()
                 print(" BATTERY STATE OF HEALTH")
                 print()
                 batterySoH(usableCapacity, effectiveCapacity)
-            elif selection == 3:
+            elif selection == 4:
                 print()
                 print(" SERVICE ALERTS")
                 print()
@@ -605,5 +760,6 @@ def mainMenu():
                     print("Invalid operation. Please enter a number from list.")
             else:
                 print("Invalid operation. Please enter a number from list.")
+
 
 mainMenu()
