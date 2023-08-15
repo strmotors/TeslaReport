@@ -21,14 +21,18 @@ print(" By ST-R Motors")
 print()
 
 try:
-    print(" Testmode Enabled.")
-    #urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "data_values")
-    #urllib.request.urlretrieve("http://192.168.90.100:7654/diag_vitals?format=json", "diag_vitals")
+    #print(" Testmode Enabled.")
+    # Comment these two lines below to enable the test mode
+    # You should have a data_values and diag_vitals file in the same folder with the script
+    # You can use the test mode to use the script on an existing data
+    urllib.request.urlretrieve("http://192.168.90.100:4035/get_data_values?format=csv", "data_values")
+    urllib.request.urlretrieve("http://192.168.90.100:7654/diag_vitals?format=json", "diag_vitals")
 except:
     print("[ERROR] Grabbing data values from vehicle failed. Please ensure that the SecEth is unlocked and cable is plugged.")
     print()
     quit()
 
+# Read data from files
 with open('data_values', encoding="utf8") as file:
     content = file.readlines()
 header = content[:1]
@@ -37,11 +41,13 @@ rows = content[1:]
 jsonFile = open('diag_vitals')
 diagVitals = json.load(jsonFile)
 
+# Clean up cache files
 if os.path.isfile("alerts_cache"):
     os.remove("alerts_cache")
 if os.path.isfile("report_cache"):
     os.remove("report_cache")
 
+# Initialize variables
 effectiveCapacity = 0
 usableCapacity = 0
 brickMax = 0
@@ -52,12 +58,14 @@ kwDischargeCount = 0
 odometer= 0
 carType = ""
 
+# Function to add years to a date
 def add_years(start_date, years):
     try:
         return start_date.replace(year=start_date.year + years)
     except ValueError:
         return start_date.replace(year=start_date.year + years, day=28)
 
+# Function to replace placeholders in the report
 def writeToReport(reportVar, replaceVar):
 
     document = Document("report_cache")
@@ -72,6 +80,7 @@ def writeToReport(reportVar, replaceVar):
     
     document.save("report_cache")
 
+# Function to display general information
 def generalInfo():
     print()
     for row in rows:
@@ -135,6 +144,7 @@ def generalInfo():
             print(" Performance AddOn: "+row[1])
     print()
 
+# Function to calculate battery state of health
 def batterySoH(usableCapacity, effectiveCapacity):
     print()
     for row in rows:
@@ -196,6 +206,7 @@ def batterySoH(usableCapacity, effectiveCapacity):
     print()
     
     
+# Function to display recent service alerts
 def recentAlerts():
     print()
     for row in rows:
@@ -300,7 +311,6 @@ def recentAlerts():
                             alertLogs.append("\n")
                         else:
                             print(" [!] Alert is active!")
-                            #alertLogs.append(" [!] Arıza Aktif!")
                             alertLogs.append("\n")
                         
                         for alert in alertLogs:
@@ -322,7 +332,6 @@ def recentAlerts():
                             alertLogs.append("Arıza Saati: " + alertTime[1])
                             alertLogs.append("\n")
                             print(" [!] Alert is active!")
-                            #alertLogs.append(" [!] Arıza Aktif!")
                             alertLogs.append("\n")
                             for alert in alertLogs:
                                            text_file.write(alert)
@@ -332,6 +341,7 @@ def recentAlerts():
                 text_file.close()
     print()
 
+# Function to export the report
 def exportReport(usableCapacity, effectiveCapacity):
 
     #GENERAL INFO
@@ -519,6 +529,7 @@ def exportReport(usableCapacity, effectiveCapacity):
     print(" Output report saved as ./" + saveReportName)
     os.remove('report_cache')
 
+# Function to reveal PINs
 def revealPins():
     print()
     for row in rows:
@@ -542,6 +553,7 @@ def revealPins():
             vm = row[1]
             print(" Valet Mode Password: " + vm)
 
+# Function to reveal Spotify credentials
 def revealSpotify():
     print()
     for row in rows:
@@ -555,6 +567,7 @@ def revealSpotify():
             password = row[1]
             print(" Spotify Password: " + password)
 
+# Function to reveal WiFi network information
 def revealWifi():
     print()
     for row in rows:
@@ -582,9 +595,11 @@ def revealWifi():
                 print("Password: "+spass)
                 print()
 
+# Copy a base report as a starting point
 shutil.copy('basereport', 'report_cache')
 writeToReport("$datetime",str(date.today()))
 
+# Collect general vehicle information
 for row in rows:
     row = row.split(",")
     if row[0]=="VAPI_carType":
@@ -592,6 +607,7 @@ for row in rows:
         print(" Vehicle Model: " + carType)
         writeToReport("$vehmodel",carType)
 
+# Collect odometer data
 for row in rows:
     row = row.split(",")
     if row[0]=="GUI_odometer":
@@ -599,6 +615,7 @@ for row in rows:
         print(" Odometer: " + odometer.split(".")[0] + " Km")
         writeToReport("$odometer",odometer.split(".")[0]+" Km")
 
+# Collect trim information and set effective/usable capacity
 for row in rows:
     row = row.split(",")
     if row[0]=="VAPI_trim":
@@ -627,6 +644,7 @@ for row in rows:
             print("Corrupted data!")
             quit()
 
+# Collect VIN and birthday information
 vin = diagVitals['vin']
 print(" VIN Number: " + vin)
 bdayUTC = int(diagVitals['bdayUTC'])
@@ -636,6 +654,7 @@ print(" Birthday: "+str(bday))
 writeToReport("$vin",vin)
 writeToReport("$bday",str(bday))
 
+# Calculate warranty expiration dates and distances
 generalWarrYear = add_years(bday,4)
 generalWarrKm = 50000*1.609344
 
@@ -676,6 +695,7 @@ else:
     print(" Battery Warranty: False")
     print()
 
+# Main menu loop function
 def mainMenu():
     developerMode = False
     while True:
@@ -761,5 +781,5 @@ def mainMenu():
             else:
                 print("Invalid operation. Please enter a number from list.")
 
-
+# Initialize the main menu loop function
 mainMenu()
