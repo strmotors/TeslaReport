@@ -628,7 +628,7 @@ for row in rows:
         elif trimName == "90D\n" or trimName == "P90D\n":
             effectiveCapacity = 85.8
             usableCapacity = 81.8
-        elif trimName == "85D\n" or trimName == "P85D\n" or trimName == "85\n" or trimName == "P85\n":
+        elif trimName == "85D\n" or trimName == "P85D\n" or trimName == "85\n" or trimName == "P85\n" or trimName == "P85+\n":
             effectiveCapacity = 81.5
             usableCapacity = 77.5
         elif trimName == "75D\n" or trimName == "75\n":
@@ -644,15 +644,18 @@ for row in rows:
             print("Corrupted data!")
             quit()
 
-# Collect VIN and birthday information
+# Collect VIN, MCU Software Version and birthday information
 vin = diagVitals['vin']
 print(" VIN Number: " + vin)
+mcuVer = str(diagVitals['mcu_ver']).split(" ")[0]
+print(" MCU Version: " + mcuVer)
 bdayUTC = int(diagVitals['bdayUTC'])
 bday = datetime.fromtimestamp(bdayUTC)
 bdayStr = bday.strftime('%Y-%m-%d')
 print(" Birthday: "+str(bday))
 writeToReport("$vin",vin)
 writeToReport("$bday",str(bday))
+writeToReport("$mcuver",mcuVer)
 
 # Calculate warranty expiration dates and distances
 generalWarrYear = add_years(bday,4)
@@ -780,6 +783,7 @@ def mainMenu():
                     print("Invalid operation. Please enter a number from list.")
             else:
                 print("Invalid operation. Please enter a number from list.")
+
 
 # Initialize the main menu loop function
 mainMenu()
