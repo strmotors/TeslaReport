@@ -6,7 +6,7 @@
 /_/  \___/____/_/\__,_/_/ |_|\___/ .___/\____/_/   \__/
                                 /_/
 ```
-
+<p align="center"><img src="Screenshots/General.png" width="576" height="344" /></p>
 This Python script is designed to gather and process diagnostic data from a vehicle's onboard systems and present it in a human-readable format. It retrieves data values and diagnostic alerts from the vehicle, analyzes battery health and charging statistics, and provides general vehicle information.
 
 ## Features
@@ -16,7 +16,6 @@ This Python script is designed to gather and process diagnostic data from a vehi
 - Analyze battery state of health (SoH) and potential issues.
 - Display recent service alerts and provide export options.
 - Export a detailed health report in .docx format.
-- Developer mode with additional options to reveal PINs, Spotify credentials, and WiFi network details.
 
 ## Usage
 
@@ -47,7 +46,7 @@ This Python script is designed to gather and process diagnostic data from a vehi
    python teslaReport.py
    ```
    
-8. Follow the on-screen menu to choose the desired operation.
+8. Enjoy!
 
 ## Note
 
