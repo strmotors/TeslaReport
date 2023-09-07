@@ -1,1 +1,2 @@
 python_docx==0.8.11
+tkinter
